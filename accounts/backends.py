@@ -2,7 +2,7 @@
 accounts/backends.py - Custom authentication backends
 """
 from django.contrib.auth.backends import ModelBackend
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from accounts.models import UserProfile
 
