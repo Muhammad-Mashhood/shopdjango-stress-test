@@ -2,8 +2,8 @@
 shipping/views.py - Shipping views
 Depends on: shipping.models, shipping.serializers, shipping.utils
 """
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_text
+from django.utils.translation import gettext_lazy as _
+from django.utils.encoding import force_str
 
 from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
@@ -51,4 +51,4 @@ def update_tracking(request, pk):
         shipment = update_shipment_tracking(pk, tracking_number, carrier, new_status)
         return Response(ShipmentSerializer(shipment).data)
     except Shipment.DoesNotExist:
-        return Response({'error': force_text(_('Shipment not found'))}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': force_str(_('Shipment not found'))}, status=status.HTTP_404_NOT_FOUND)

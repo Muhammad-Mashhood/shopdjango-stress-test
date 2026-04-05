@@ -34,8 +34,8 @@ INSTALLED_APPS = [
     'analytics',
 ]
 
-# Django 1.x uses MIDDLEWARE_CLASSES (not MIDDLEWARE)
-MIDDLEWARE_CLASSES = [
+# Django 1.x uses MIDDLEWARE (not MIDDLEWARE)
+MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

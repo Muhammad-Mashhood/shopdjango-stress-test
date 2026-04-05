@@ -3,7 +3,7 @@ inventory/models.py - Stock/inventory management
 Depends on: products.models
 """
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from six import python_2_unicode_compatible
 
 from products.models import Product, ProductVariant
@@ -59,7 +59,7 @@ class StockMovement(models.Model):
         ('released', _('Released')),
         ('adjustment', _('Adjustment')),
     )
-    product = models.ForeignKey(Product, related_name='stock_movements')
+    product = models.ForeignKey(Product, related_name='stock_movements', on_delete=models.CASCADE)
     movement_type = models.CharField(max_length=15, choices=MOVEMENT_TYPES)
     quantity = models.IntegerField()
     reference = models.CharField(max_length=100, blank=True)

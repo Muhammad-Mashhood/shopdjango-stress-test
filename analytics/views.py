@@ -3,7 +3,7 @@ analytics/views.py - Analytics dashboard views
 Depends on: analytics.models, analytics.utils, orders.models, products.models
 """
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from rest_framework import generics, permissions
 from rest_framework.decorators import api_view, permission_classes

@@ -3,8 +3,8 @@ products/views.py - Product CRUD views
 Depends on: products.models, products.serializers, products.filters, products.utils
 """
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_text
+from django.utils.translation import gettext_lazy as _
+from django.utils.encoding import force_str
 
 from rest_framework import generics, filters, permissions, status
 from rest_framework.decorators import api_view, permission_classes
@@ -122,4 +122,4 @@ def related_products(request, product_id):
         serializer = ProductListSerializer(related, many=True)
         return Response(serializer.data)
     except Product.DoesNotExist:
-        return Response({'error': force_text(_('Product not found'))}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': force_str(_('Product not found'))}, status=status.HTTP_404_NOT_FOUND)

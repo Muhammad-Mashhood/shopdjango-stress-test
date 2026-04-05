@@ -3,7 +3,7 @@ discounts/models.py - Coupons and discount rules
 Depends on: products.models, accounts.models
 """
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from six import python_2_unicode_compatible
 
@@ -32,7 +32,7 @@ class Discount(models.Model):
     applicable_products = models.ManyToManyField(Product, blank=True, related_name='discounts')
     applicable_categories = models.ManyToManyField(Category, blank=True, related_name='discounts')
     is_active = models.BooleanField(default=True)
-    created_by = models.ForeignKey(UserProfile, related_name='created_discounts')
+    created_by = models.ForeignKey(UserProfile, related_name='created_discounts', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -65,8 +65,8 @@ class Discount(models.Model):
 @python_2_unicode_compatible
 class DiscountUsage(models.Model):
     """Tracks which users have used which discounts."""
-    discount = models.ForeignKey(Discount, related_name='usages')
-    user = models.ForeignKey(UserProfile, related_name='discount_usages')
+    discount = models.ForeignKey(Discount, related_name='usages', on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, related_name='discount_usages', on_delete=models.CASCADE)
     used_at = models.DateTimeField(auto_now_add=True)
     order_id = models.IntegerField(null=True, blank=True)
 

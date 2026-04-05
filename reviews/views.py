@@ -3,8 +3,8 @@ reviews/views.py - Product review views
 Depends on: reviews.models, reviews.serializers, products.utils, notifications.utils
 """
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_text
+from django.utils.translation import gettext_lazy as _
+from django.utils.encoding import force_str
 
 from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
@@ -36,7 +36,7 @@ class ReviewListCreateView(generics.ListCreateAPIView):
             product = Product.objects.get(pk=product_id)
         except Product.DoesNotExist:
             from rest_framework.exceptions import NotFound
-            raise NotFound(force_text(_('Product not found')))
+            raise NotFound(force_str(_('Product not found')))
 
         # Verify purchase - check if user has ordered this product
         from orders.models import OrderItem
@@ -71,9 +71,9 @@ def approve_review(request, review_id):
             related_object_id=review.pk,
             related_object_type='review'
         )
-        return Response({'message': force_text(_('Review approved'))})
+        return Response({'message': force_str(_('Review approved'))})
     except Review.DoesNotExist:
-        return Response({'error': force_text(_('Review not found'))}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': force_str(_('Review not found'))}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
@@ -96,7 +96,7 @@ def vote_review(request, review_id):
         Review.objects.filter(pk=review_id).update(helpful_votes=helpful_count)
         return Response({'helpful_votes': helpful_count})
     except Review.DoesNotExist:
-        return Response({'error': force_text(_('Review not found'))}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': force_str(_('Review not found'))}, status=status.HTTP_404_NOT_FOUND)
 
 
 class QuestionListCreateView(generics.ListCreateAPIView):

@@ -2,7 +2,7 @@
 inventory/utils.py - Stock management utilities
 Depends on: inventory.models, orders.models
 """
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from inventory.models import StockLevel, StockMovement
 
 
@@ -13,7 +13,7 @@ def reserve_stock(order):
             stock = StockLevel.objects.get(product=item.product)
             if stock.available_quantity < item.quantity:
                 raise ValueError(
-                    force_text('Insufficient stock for %s' % item.product.name)
+                    force_str('Insufficient stock for %s' % item.product.name)
                 )
             StockLevel.objects.filter(pk=stock.pk).update(
                 reserved_quantity=stock.reserved_quantity + item.quantity

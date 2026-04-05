@@ -3,8 +3,8 @@ products/models.py - Product catalog models
 Depends on: accounts.models
 """
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_text
+from django.utils.translation import gettext_lazy as _
+from django.utils.encoding import force_str
 from django.core.validators import MinValueValidator, MaxValueValidator
 from six import python_2_unicode_compatible
 from jsonfield import JSONField
@@ -18,12 +18,10 @@ class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True)
     description = models.TextField(blank=True)
-    parent = models.ForeignKey(
-        'self',
+    parent = models.ForeignKey('self',
         null=True,
         blank=True,
-        related_name='subcategories'
-    )
+        related_name='subcategories', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='categories/', null=True, blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -36,7 +34,7 @@ class Category(models.Model):
         ordering = ['name']
 
     def __str__(self):
-        return force_text(self.name)
+        return force_str(self.name)
 
     def get_ancestors(self):
         """Return all ancestor categories."""
@@ -64,7 +62,7 @@ class Brand(models.Model):
         ordering = ['name']
 
     def __str__(self):
-        return force_text(self.name)
+        return force_str(self.name)
 
 
 @python_2_unicode_compatible
@@ -77,7 +75,7 @@ class Tag(models.Model):
         ordering = ['name']
 
     def __str__(self):
-        return force_text(self.name)
+        return force_str(self.name)
 
 
 @python_2_unicode_compatible
@@ -94,10 +92,10 @@ class Product(models.Model):
     sku = models.CharField(max_length=50, unique=True)
     description = models.TextField()
     short_description = models.CharField(max_length=500, blank=True)
-    category = models.ForeignKey(Category, related_name='products')
-    brand = models.ForeignKey(Brand, null=True, blank=True, related_name='products')
+    category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)
+    brand = models.ForeignKey(Brand, null=True, blank=True, related_name='products', on_delete=models.CASCADE)
     tags = models.ManyToManyField(Tag, blank=True, related_name='products')
-    created_by = models.ForeignKey(UserProfile, related_name='created_products')
+    created_by = models.ForeignKey(UserProfile, related_name='created_products', on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     compare_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     cost_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -122,7 +120,7 @@ class Product(models.Model):
         ]
 
     def __str__(self):
-        return force_text(self.name)
+        return force_str(self.name)
 
     def get_discount_percentage(self):
         """Calculate discount percentage if compare_price is set."""
@@ -138,7 +136,7 @@ class Product(models.Model):
 @python_2_unicode_compatible
 class ProductImage(models.Model):
     """Images associated with a product."""
-    product = models.ForeignKey(Product, related_name='images')
+    product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='products/')
     alt_text = models.CharField(max_length=200, blank=True)
     is_primary = models.BooleanField(default=False)
@@ -149,13 +147,13 @@ class ProductImage(models.Model):
         ordering = ['sort_order', 'created_at']
 
     def __str__(self):
-        return force_text('%s - Image %s' % (self.product.name, self.pk))
+        return force_str('%s - Image %s' % (self.product.name, self.pk))
 
 
 @python_2_unicode_compatible
 class ProductVariant(models.Model):
     """Product variant (e.g. size, color combinations)."""
-    product = models.ForeignKey(Product, related_name='variants')
+    product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE)
     sku = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=200)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -167,7 +165,7 @@ class ProductVariant(models.Model):
         verbose_name = _('product variant')
 
     def __str__(self):
-        return force_text('%s - %s' % (self.product.name, self.name))
+        return force_str('%s - %s' % (self.product.name, self.name))
 
     def get_price(self):
         """Return variant price, falling back to product price."""

@@ -3,7 +3,7 @@ accounts/middleware.py - Custom middleware for user activity tracking
 Django 1.x middleware style (process_request/process_response methods)
 """
 import json
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 class UserActivityMiddleware(object):

@@ -3,7 +3,7 @@ notifications/models.py - Notification records for users
 Depends on: accounts.models
 """
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from six import python_2_unicode_compatible
 
 from accounts.models import UserProfile
@@ -26,7 +26,7 @@ class Notification(models.Model):
         ('new_message', _('New Message')),
         ('account_verified', _('Account Verified')),
     )
-    user = models.ForeignKey(UserProfile, related_name='notifications')
+    user = models.ForeignKey(UserProfile, related_name='notifications', on_delete=models.CASCADE)
     notification_type = models.CharField(max_length=30, choices=NOTIFICATION_TYPES)
     title = models.CharField(max_length=200)
     message = models.TextField()
@@ -53,7 +53,7 @@ class EmailLog(models.Model):
         ('failed', _('Failed')),
         ('bounced', _('Bounced')),
     )
-    user = models.ForeignKey(UserProfile, related_name='email_logs', null=True, blank=True)
+    user = models.ForeignKey(UserProfile, related_name='email_logs', null=True, blank=True, on_delete=models.CASCADE)
     recipient_email = models.EmailField()
     subject = models.CharField(max_length=200)
     body = models.TextField()

@@ -2,8 +2,8 @@
 discounts/views.py - Discount management views
 Depends on: discounts.models, discounts.serializers, orders.models
 """
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_text
+from django.utils.translation import gettext_lazy as _
+from django.utils.encoding import force_str
 
 from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
@@ -38,6 +38,6 @@ def validate_discount(request):
                 'discount_type': discount.discount_type,
                 'value': float(discount.value),
             })
-        return Response({'valid': False, 'message': force_text(_('Discount is expired or exhausted'))})
+        return Response({'valid': False, 'message': force_str(_('Discount is expired or exhausted'))})
     except Discount.DoesNotExist:
-        return Response({'valid': False, 'message': force_text(_('Invalid discount code'))})
+        return Response({'valid': False, 'message': force_str(_('Invalid discount code'))})

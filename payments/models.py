@@ -3,7 +3,7 @@ payments/models.py - Payment processing and transaction records
 Depends on: accounts.models, orders.models
 """
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from six import python_2_unicode_compatible
 
 from accounts.models import UserProfile
@@ -28,7 +28,7 @@ class Payment(models.Model):
     )
 
     order = models.OneToOneField(Order, related_name='payment')
-    user = models.ForeignKey(UserProfile, related_name='payments')
+    user = models.ForeignKey(UserProfile, related_name='payments', on_delete=models.CASCADE)
     gateway = models.CharField(max_length=15, choices=GATEWAY_CHOICES)
     gateway_transaction_id = models.CharField(max_length=200, blank=True)
     gateway_response = models.TextField(blank=True)  # Raw JSON from gateway
@@ -49,11 +49,11 @@ class Payment(models.Model):
 @python_2_unicode_compatible
 class Refund(models.Model):
     """A refund issued for a payment."""
-    payment = models.ForeignKey(Payment, related_name='refunds')
+    payment = models.ForeignKey(Payment, related_name='refunds', on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     reason = models.TextField()
     gateway_refund_id = models.CharField(max_length=200, blank=True)
-    processed_by = models.ForeignKey(UserProfile, related_name='processed_refunds')
+    processed_by = models.ForeignKey(UserProfile, related_name='processed_refunds', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -66,7 +66,7 @@ class Refund(models.Model):
 @python_2_unicode_compatible
 class SavedPaymentMethod(models.Model):
     """Saved tokenized payment method for a user."""
-    user = models.ForeignKey(UserProfile, related_name='saved_payment_methods')
+    user = models.ForeignKey(UserProfile, related_name='saved_payment_methods', on_delete=models.CASCADE)
     gateway = models.CharField(max_length=15)
     gateway_customer_id = models.CharField(max_length=200)
     gateway_payment_method_id = models.CharField(max_length=200)

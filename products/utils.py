@@ -1,7 +1,7 @@
 """
 products/utils.py - Utility functions for products app
 """
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from products.models import Product
 
 

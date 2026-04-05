@@ -1,9 +1,9 @@
-from django.conf.urls import url
+from django.urls import re_path
 from inventory import views
 
 urlpatterns = [
-    url(r'^$', views.StockListView.as_view(), name='stock-list'),
-    url(r'^(?P<pk>\d+)/$', views.StockDetailView.as_view(), name='stock-detail'),
-    url(r'^movements/$', views.StockMovementListView.as_view(), name='stock-movements'),
-    url(r'^add/$', views.add_stock_view, name='stock-add'),
+    re_path(r'^$', views.StockListView.as_view(), name='stock-list'),
+    re_path(r'^(?P<pk>\d+)/$', views.StockDetailView.as_view(), name='stock-detail'),
+    re_path(r'^movements/$', views.StockMovementListView.as_view(), name='stock-movements'),
+    re_path(r'^add/$', views.add_stock_view, name='stock-add'),
 ]
