@@ -3,13 +3,12 @@ shipping/models.py - Shipping zones, rates, and shipment tracking
 Depends on: accounts.models, orders (via FK string)
 """
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
-from six import python_2_unicode_compatible
+from django.utils.translation import gettext_lazy as _
+from django.db.models import UniqueConstraint, Index
 
 from accounts.models import UserProfile, Address
 
 
-@python_2_unicode_compatible
 class ShippingZone(models.Model):
     """A geographic zone used to define shipping rates."""
     name = models.CharField(max_length=100)
@@ -17,13 +16,12 @@ class ShippingZone(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return u'%s' % self.name
+        return f'{self.name}'
 
     def get_countries_list(self):
         return [c.strip() for c in self.countries.split(',')]
 
 
-@python_2_unicode_compatible
 class ShippingRate(models.Model):
     """Shipping rate for a zone and method."""
     SHIPPING_METHOD_CHOICES = (
@@ -32,7 +30,7 @@ class ShippingRate(models.Model):
         ('overnight', _('Overnight Shipping')),
         ('free', _('Free Shipping')),
     )
-    zone = models.ForeignKey(ShippingZone, related_name='rates')
+    zone = models.ForeignKey(ShippingZone, related_name='rates', on_delete=models.CASCADE)
     method = models.CharField(max_length=20, choices=SHIPPING_METHOD_CHOICES)
     min_weight = models.DecimalField(max_digits=8, decimal_places=3, default=0)
     max_weight = models.DecimalField(max_digits=8, decimal_places=3, null=True, blank=True)
@@ -46,10 +44,9 @@ class ShippingRate(models.Model):
         verbose_name = _('shipping rate')
 
     def __str__(self):
-        return u'%s - %s: $%s' % (self.zone.name, self.method, self.price)
+        return f'{self.zone.name} - {self.method}: ${self.price}'
 
 
-@python_2_unicode_compatible
 class Shipment(models.Model):
     """Tracks a physical shipment."""
     STATUS_CHOICES = (
@@ -76,6 +73,9 @@ class Shipment(models.Model):
     class Meta:
         verbose_name = _('shipment')
         ordering = ['-created_at']
+        constraints = [
+            UniqueConstraint(fields=['tracking_number'], name='unique_tracking_number')
+        ]
 
     def __str__(self):
-        return u'Shipment #%s for Order #%s' % (self.pk, self.order_id)
+        return f'Shipment #{self.pk} for Order #{self.order_id}'
