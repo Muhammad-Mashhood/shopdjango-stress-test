@@ -5,6 +5,8 @@ Depends on: shipping.models, orders.models, accounts.models
 from django.utils import timezone
 from shipping.models import Shipment, ShippingZone, ShippingRate
 from accounts.models import Address
+from orders.models import Order
+from notifications.utils import send_order_notification
 
 
 def create_shipment_for_order(order):
@@ -52,10 +54,8 @@ def update_shipment_tracking(shipment_id, tracking_number, carrier, status='ship
     Shipment.objects.filter(pk=shipment_id).update(**updates)
 
     # Notify user about shipment
-    from orders.models import Order
     try:
         order = Order.objects.get(pk=shipment.order_id)
-        from notifications.utils import send_order_notification
         send_order_notification(order, 'order_shipped')
         Order.objects.filter(pk=order.pk).update(status='shipped')
     except Order.DoesNotExist:

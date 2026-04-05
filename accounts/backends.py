@@ -2,7 +2,7 @@
 accounts/backends.py - Custom authentication backends
 """
 from django.contrib.auth.backends import ModelBackend
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from accounts.models import UserProfile
 
@@ -10,7 +10,7 @@ from accounts.models import UserProfile
 class EmailBackend(ModelBackend):
     """
     Authenticate using email address instead of username.
-    Django 1.x custom authentication backend.
+    Django 5.x custom authentication backend.
     """
 
     def authenticate(self, email=None, password=None, **kwargs):

@@ -18,8 +18,8 @@ def process_stripe_payment(order, payment_intent_id, user):
     try:
         intent = stripe.PaymentIntent.retrieve(payment_intent_id)
         gateway_response = str(intent)
-    except stripe.error.StripeError:
-        gateway_response = ''
+    except stripe.error.StripeError as e:
+        gateway_response = str(e)
 
     payment = Payment.objects.create(
         order=order,
@@ -47,8 +47,9 @@ def process_refund(payment, amount, reason, processed_by):
             amount=int(float(amount) * 100),
         )
         refund_status = 'refunded'
-    except stripe.error.StripeError:
+    except stripe.error.StripeError as e:
         refund_status = payment.status
+        print(f"Error processing refund: {e}")
 
     refund = Refund.objects.create(
         payment=payment,
