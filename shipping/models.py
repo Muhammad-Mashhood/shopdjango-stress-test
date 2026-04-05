@@ -3,7 +3,7 @@ shipping/models.py - Shipping zones, rates, and shipment tracking
 Depends on: accounts.models, orders (via FK string)
 """
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from six import python_2_unicode_compatible
 
 from accounts.models import UserProfile, Address
@@ -32,7 +32,7 @@ class ShippingRate(models.Model):
         ('overnight', _('Overnight Shipping')),
         ('free', _('Free Shipping')),
     )
-    zone = models.ForeignKey(ShippingZone, related_name='rates')
+    zone = models.ForeignKey(ShippingZone, related_name='rates', on_delete=models.CASCADE)
     method = models.CharField(max_length=20, choices=SHIPPING_METHOD_CHOICES)
     min_weight = models.DecimalField(max_digits=8, decimal_places=3, default=0)
     max_weight = models.DecimalField(max_digits=8, decimal_places=3, null=True, blank=True)
