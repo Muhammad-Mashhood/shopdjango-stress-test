@@ -3,7 +3,7 @@ analytics/models.py - Analytics data models
 Depends on: accounts.models, products.models, orders.models
 """
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from six import python_2_unicode_compatible
 
 from accounts.models import UserProfile
@@ -14,8 +14,8 @@ from orders.models import Order
 @python_2_unicode_compatible
 class ProductView(models.Model):
     """Tracks each unique product page view."""
-    product = models.ForeignKey(Product, related_name='analytics_views')
-    user = models.ForeignKey(UserProfile, null=True, blank=True, related_name='product_views')
+    product = models.ForeignKey(Product, related_name='analytics_views', on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, null=True, blank=True, related_name='product_views', on_delete=models.CASCADE)
     session_key = models.CharField(max_length=40, blank=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     referrer = models.URLField(blank=True)
@@ -32,7 +32,7 @@ class ProductView(models.Model):
 @python_2_unicode_compatible
 class SearchQuery(models.Model):
     """Records search queries made by users."""
-    user = models.ForeignKey(UserProfile, null=True, blank=True, related_name='search_queries')
+    user = models.ForeignKey(UserProfile, null=True, blank=True, related_name='search_queries', on_delete=models.CASCADE)
     query = models.CharField(max_length=200)
     results_count = models.IntegerField(default=0)
     clicked_product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL)
@@ -70,7 +70,7 @@ class SalesReport(models.Model):
 @python_2_unicode_compatible
 class ProductPerformance(models.Model):
     """Weekly product performance snapshot."""
-    product = models.ForeignKey(Product, related_name='performance_records')
+    product = models.ForeignKey(Product, related_name='performance_records', on_delete=models.CASCADE)
     week_start = models.DateField()
     views = models.IntegerField(default=0)
     add_to_cart_count = models.IntegerField(default=0)
