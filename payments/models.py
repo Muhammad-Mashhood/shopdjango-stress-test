@@ -3,14 +3,13 @@ payments/models.py - Payment processing and transaction records
 Depends on: accounts.models, orders.models
 """
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
-from six import python_2_unicode_compatible
+from django.utils.translation import gettext_lazy as _
+from django.db.models import UniqueConstraint, Index
 
 from accounts.models import UserProfile
 from orders.models import Order
 
 
-@python_2_unicode_compatible
 class Payment(models.Model):
     """A payment transaction linked to an order."""
     STATUS_CHOICES = (
@@ -27,8 +26,8 @@ class Payment(models.Model):
         ('manual', _('Manual')),
     )
 
-    order = models.OneToOneField(Order, related_name='payment')
-    user = models.ForeignKey(UserProfile, related_name='payments')
+    order = models.OneToOneField(Order, related_name='payment', on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, related_name='payments', on_delete=models.CASCADE)
     gateway = models.CharField(max_length=15, choices=GATEWAY_CHOICES)
     gateway_transaction_id = models.CharField(max_length=200, blank=True)
     gateway_response = models.TextField(blank=True)  # Raw JSON from gateway
@@ -41,32 +40,33 @@ class Payment(models.Model):
     class Meta:
         verbose_name = _('payment')
         ordering = ['-created_at']
+        constraints = [
+            UniqueConstraint(fields=['order'], name='unique_payment_per_order')
+        ]
 
     def __str__(self):
-        return u'Payment #%s for Order #%s ($%s)' % (self.pk, self.order.order_number, self.amount)
+        return f'Payment #{self.pk} for Order #{self.order.order_number} (${self.amount})'
 
 
-@python_2_unicode_compatible
 class Refund(models.Model):
     """A refund issued for a payment."""
-    payment = models.ForeignKey(Payment, related_name='refunds')
+    payment = models.ForeignKey(Payment, related_name='refunds', on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     reason = models.TextField()
     gateway_refund_id = models.CharField(max_length=200, blank=True)
-    processed_by = models.ForeignKey(UserProfile, related_name='processed_refunds')
+    processed_by = models.ForeignKey(UserProfile, related_name='processed_refunds', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = _('refund')
 
     def __str__(self):
-        return u'Refund $%s for Payment #%s' % (self.amount, self.payment.pk)
+        return f'Refund ${self.amount} for Payment #{self.payment.pk}'
 
 
-@python_2_unicode_compatible
 class SavedPaymentMethod(models.Model):
     """Saved tokenized payment method for a user."""
-    user = models.ForeignKey(UserProfile, related_name='saved_payment_methods')
+    user = models.ForeignKey(UserProfile, related_name='saved_payment_methods', on_delete=models.CASCADE)
     gateway = models.CharField(max_length=15)
     gateway_customer_id = models.CharField(max_length=200)
     gateway_payment_method_id = models.CharField(max_length=200)
@@ -79,6 +79,9 @@ class SavedPaymentMethod(models.Model):
 
     class Meta:
         verbose_name = _('saved payment method')
+        indexes = [
+            Index(fields=['user', 'gateway'], name='saved_payment_method_index')
+        ]
 
     def __str__(self):
-        return u'%s ending in %s (%s/%s)' % (self.brand, self.last4, self.exp_month, self.exp_year)
+        return f'{self.brand} ending in {self.last4} ({self.exp_month}/{self.exp_year})'
