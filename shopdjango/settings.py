@@ -1,5 +1,5 @@
 """
-ShopDjango settings - Django 1.11
+ShopDjango settings - Django 5.x
 """
 import os
 
@@ -11,7 +11,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-# Application definition - Django 1.x style
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -34,14 +34,13 @@ INSTALLED_APPS = [
     'analytics',
 ]
 
-# Django 1.x uses MIDDLEWARE_CLASSES (not MIDDLEWARE)
-MIDDLEWARE_CLASSES = [
+# MIDDLEWARE instead of MIDDLEWARE_CLASSES
+MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'accounts.middleware.UserActivityMiddleware',
@@ -124,7 +123,7 @@ REST_FRAMEWORK = {
 }
 
 # Celery settings
-BROKER_URL = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
