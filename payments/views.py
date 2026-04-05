@@ -5,8 +5,8 @@ Depends on: payments.models, payments.utils, orders.models, notifications.utils
 import stripe
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_text
+from django.utils.translation import gettext_lazy as _
+from django.utils.encoding import force_str
 
 from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
@@ -29,7 +29,7 @@ def create_payment_intent(request):
     try:
         order = Order.objects.get(pk=order_id, user=request.user, payment_status='pending')
     except Order.DoesNotExist:
-        return Response({'error': force_text(_('Order not found'))}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': force_str(_('Order not found'))}, status=status.HTTP_404_NOT_FOUND)
 
     try:
         intent = stripe.PaymentIntent.create(
@@ -72,7 +72,7 @@ def process_refund_view(request):
         send_payment_notification(payment, success=False)
         return Response(RefundSerializer(refund).data)
     except Payment.DoesNotExist:
-        return Response({'error': force_text(_('Payment not found'))}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': force_str(_('Payment not found'))}, status=status.HTTP_404_NOT_FOUND)
 
 
 class PaymentHistoryView(generics.ListAPIView):
