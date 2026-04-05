@@ -4,8 +4,8 @@ Django 1.x style
 """
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_text
+from django.utils.translation import gettext_lazy as _
+from django.utils.encoding import force_str
 from django.utils import timezone
 from six import python_2_unicode_compatible
 
@@ -43,7 +43,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         ordering = ['-date_joined']
 
     def __str__(self):
-        return force_text(self.email)
+        return force_str(self.email)
 
     def get_full_name(self):
         return u'%s %s' % (self.first_name, self.last_name)
