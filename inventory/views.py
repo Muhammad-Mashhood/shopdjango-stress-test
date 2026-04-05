@@ -2,8 +2,8 @@
 inventory/views.py - Inventory management views
 Depends on: inventory.models, inventory.serializers, inventory.utils
 """
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_text
+from django.utils.translation import gettext_lazy as _
+from django.utils.encoding import force_str
 
 from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
@@ -44,6 +44,6 @@ def add_stock_view(request):
     try:
         product = Product.objects.get(pk=product_id)
         add_stock(product, quantity, notes=notes)
-        return Response({'message': force_text(_('Stock updated successfully'))})
+        return Response({'message': force_str(_('Stock updated successfully'))})
     except Product.DoesNotExist:
-        return Response({'error': force_text(_('Product not found'))}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': force_str(_('Product not found'))}, status=status.HTTP_404_NOT_FOUND)
