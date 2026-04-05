@@ -1,0 +1,1 @@
+# shopdjango package

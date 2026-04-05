@@ -1,0 +1,11 @@
+Django==1.11.29
+djangorestframework==3.6.4
+django-filter==1.0.4
+jsonfield==2.0.2
+Pillow==4.3.0
+six==1.11.0
+psycopg2==2.7.4
+celery==4.1.0
+redis==2.10.6
+stripe==1.82.1
+requests==2.18.4
