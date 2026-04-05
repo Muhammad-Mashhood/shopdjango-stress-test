@@ -1,8 +1,8 @@
-from django.conf.urls import url
+from django.urls import re_path
 from discounts import views
 
 urlpatterns = [
-    url(r'^$', views.DiscountListView.as_view(), name='discount-list'),
-    url(r'^validate/$', views.validate_discount, name='discount-validate'),
-    url(r'^(?P<pk>\d+)/$', views.DiscountDetailView.as_view(), name='discount-detail'),
+    re_path(r'^$', views.DiscountListView.as_view(), name='discount-list'),
+    re_path(r'^validate/$', views.validate_discount, name='discount-validate'),
+    re_path(r'^(?P<pk>\d+)/$', views.DiscountDetailView.as_view(), name='discount-detail'),
 ]
