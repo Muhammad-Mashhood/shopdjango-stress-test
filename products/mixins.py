@@ -5,7 +5,7 @@ from rest_framework import permissions
 from products.models import Product
 
 
-class ProductOwnerMixin(object):
+class ProductOwnerMixin:
     """Mixin to restrict product editing to the product creator or admin."""
 
     def get_permissions(self):
@@ -20,7 +20,7 @@ class ProductOwnerMixin(object):
         return product.created_by == user
 
 
-class ProductSlugMixin(object):
+class ProductSlugMixin:
     """Mixin to add slug-based lookups."""
     lookup_field = 'slug'
 
