@@ -4,7 +4,7 @@ Depends on: orders.models, accounts.models, products.models, discounts.models, s
 """
 import uuid
 from django.utils import timezone
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 
 from orders.models import Cart, CartItem, Order, OrderItem
 from accounts.models import Address
@@ -48,15 +48,15 @@ def apply_discount_to_cart(cart, discount_code, user):
     try:
         discount = Discount.objects.get(code=discount_code, is_active=True)
     except Discount.DoesNotExist:
-        return None, force_text('Invalid discount code')
+        return None, force_str('Invalid discount code')
 
     if not discount.is_valid():
-        return None, force_text('Discount is expired or no longer available')
+        return None, force_str('Discount is expired or no longer available')
 
     # Check per-user usage
     user_usage = DiscountUsage.objects.filter(discount=discount, user=user).count()
     if user_usage >= discount.per_user_limit:
-        return None, force_text('You have already used this discount')
+        return None, force_str('You have already used this discount')
 
     return discount, None
 
