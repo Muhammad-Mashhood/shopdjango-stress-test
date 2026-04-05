@@ -3,8 +3,8 @@ accounts/views.py - User registration, login, profile management
 """
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_text
+from django.utils.translation import gettext_lazy as _
+from django.utils.encoding import force_str
 
 from rest_framework import status, generics, permissions
 from rest_framework.decorators import api_view, permission_classes
@@ -31,7 +31,7 @@ class UserRegistrationView(APIView):
             send_verification_email(user)
             log_user_activity(user, 'registered', request)
             return Response(
-                {'message': force_text(_('Registration successful. Please check your email.'))},
+                {'message': force_str(_('Registration successful. Please check your email.'))},
                 status=status.HTTP_201_CREATED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -51,7 +51,7 @@ class UserLoginView(APIView):
             serializer = UserProfileSerializer(user)
             return Response(serializer.data)
         return Response(
-            {'error': force_text(_('Invalid credentials'))},
+            {'error': force_str(_('Invalid credentials'))},
             status=status.HTTP_401_UNAUTHORIZED
         )
 
@@ -62,7 +62,7 @@ class UserLogoutView(APIView):
     def post(self, request):
         log_user_activity(request.user, 'logout', request)
         logout(request)
-        return Response({'message': force_text(_('Logged out successfully'))})
+        return Response({'message': force_str(_('Logged out successfully'))})
 
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
@@ -117,13 +117,13 @@ def change_password(request):
 
     if not request.user.check_password(old_password):
         return Response(
-            {'error': force_text(_('Old password is incorrect'))},
+            {'error': force_str(_('Old password is incorrect'))},
             status=status.HTTP_400_BAD_REQUEST
         )
     request.user.set_password(new_password)
     request.user.save()
     log_user_activity(request.user, 'password_changed', request)
-    return Response({'message': force_text(_('Password changed successfully'))})
+    return Response({'message': force_str(_('Password changed successfully'))})
 
 
 @api_view(['GET'])
@@ -136,8 +136,8 @@ def verify_email(request, token):
         user.is_verified = True
         user.save()
         log_user_activity(user, 'email_verified', request)
-        return Response({'message': force_text(_('Email verified successfully'))})
+        return Response({'message': force_str(_('Email verified successfully'))})
     return Response(
-        {'error': force_text(_('Invalid or expired token'))},
+        {'error': force_str(_('Invalid or expired token'))},
         status=status.HTTP_400_BAD_REQUEST
     )
