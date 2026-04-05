@@ -5,8 +5,8 @@ import hashlib
 import time
 from django.core.mail import send_mail
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_text
+from django.utils.translation import gettext_lazy as _
+from django.utils.encoding import force_str
 
 
 def generate_verification_token(user):
@@ -29,11 +29,11 @@ def verify_email_token(token):
 def send_verification_email(user):
     """Send an email verification link to the user."""
     token = generate_verification_token(user)
-    subject = force_text(_('Verify your ShopDjango account'))
-    message = force_text(_(
+    subject = _('Verify your ShopDjango account')
+    message = _(
         'Please click the link below to verify your email address:\n'
         'http://localhost:8000/api/accounts/verify/%s/'
-    )) % token
+    ) % token
 
     send_mail(
         subject=subject,
@@ -47,8 +47,8 @@ def send_verification_email(user):
 
 def send_password_reset_email(user, reset_url):
     """Send a password reset email."""
-    subject = force_text(_('Reset your ShopDjango password'))
-    message = force_text(_('Click the link to reset your password: %s')) % reset_url
+    subject = _('Reset your ShopDjango password')
+    message = _('Click the link to reset your password: %s') % reset_url
     send_mail(
         subject=subject,
         message=message,
@@ -75,12 +75,11 @@ def log_user_activity(user, action, request=None):
         user=user,
         action=action,
         ip_address=ip_address,
-        user_agent=user_agent,
     )
 
 
 def get_user_display_name(user):
     """Get a display-friendly name for the user."""
     if user.first_name and user.last_name:
-        return force_text('%s %s' % (user.first_name, user.last_name))
-    return force_text(user.email)
+        return '%s %s' % (user.first_name, user.last_name)
+    return user.email
