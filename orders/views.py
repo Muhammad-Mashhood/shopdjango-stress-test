@@ -3,8 +3,8 @@ orders/views.py - Order management views
 Depends on: orders.models, orders.serializers, orders.utils, payments.utils, notifications.utils
 """
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_text
+from django.utils.translation import gettext_lazy as _
+from django.utils.encoding import force_str
 
 from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
@@ -43,14 +43,14 @@ def add_to_cart(request):
     try:
         product = Product.objects.get(pk=product_id, status='active')
     except Product.DoesNotExist:
-        return Response({'error': force_text(_('Product not found'))}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': force_str(_('Product not found'))}, status=status.HTTP_404_NOT_FOUND)
 
     variant = None
     if variant_id:
         try:
             variant = ProductVariant.objects.get(pk=variant_id, product=product)
         except ProductVariant.DoesNotExist:
-            return Response({'error': force_text(_('Variant not found'))}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': force_str(_('Variant not found'))}, status=status.HTTP_404_NOT_FOUND)
 
     item, created = CartItem.objects.get_or_create(
         cart=cart, product=product, variant=variant,
@@ -60,7 +60,7 @@ def add_to_cart(request):
         item.quantity += quantity
         item.save()
 
-    return Response({'message': force_text(_('Added to cart')), 'item_count': cart.get_item_count()})
+    return Response({'message': force_str(_('Added to cart')), 'item_count': cart.get_item_count()})
 
 
 @api_view(['DELETE'])
@@ -71,9 +71,9 @@ def remove_from_cart(request, item_id):
         cart = Cart.objects.get(user=request.user)
         item = CartItem.objects.get(pk=item_id, cart=cart)
         item.delete()
-        return Response({'message': force_text(_('Item removed'))})
+        return Response({'message': force_str(_('Item removed'))})
     except (Cart.DoesNotExist, CartItem.DoesNotExist):
-        return Response({'error': force_text(_('Item not found'))}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': force_str(_('Item not found'))}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
@@ -83,7 +83,7 @@ def checkout(request):
     try:
         cart = Cart.objects.get(user=request.user)
         if not cart.items.exists():
-            return Response({'error': force_text(_('Cart is empty'))}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': force_str(_('Cart is empty'))}, status=status.HTTP_400_BAD_REQUEST)
 
         discount_code = request.data.get('discount_code')
         shipping_rate_id = request.data.get('shipping_rate_id')
@@ -103,7 +103,7 @@ def checkout(request):
         serializer = OrderSerializer(order)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     except Cart.DoesNotExist:
-        return Response({'error': force_text(_('Cart not found'))}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': force_str(_('Cart not found'))}, status=status.HTTP_404_NOT_FOUND)
 
 
 class OrderListView(generics.ListAPIView):
