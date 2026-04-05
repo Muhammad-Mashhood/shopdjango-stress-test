@@ -3,8 +3,8 @@ orders/models.py - Order management
 Depends on: accounts.models, products.models, discounts.models, shipping.models
 """
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_text
+from django.utils.translation import gettext_lazy as _
+from django.utils.encoding import force_str
 from six import python_2_unicode_compatible
 
 from accounts.models import UserProfile, Address
@@ -39,9 +39,9 @@ class Cart(models.Model):
 @python_2_unicode_compatible
 class CartItem(models.Model):
     """An item in a shopping cart."""
-    cart = models.ForeignKey(Cart, related_name='items')
-    product = models.ForeignKey(Product, related_name='cart_items')
-    variant = models.ForeignKey(ProductVariant, null=True, blank=True, related_name='cart_items')
+    cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='cart_items', on_delete=models.CASCADE)
+    variant = models.ForeignKey(ProductVariant, null=True, blank=True, related_name='cart_items', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     added_at = models.DateTimeField(auto_now_add=True)
 
@@ -75,7 +75,7 @@ class Order(models.Model):
         ('cod', _('Cash on Delivery')),
     )
 
-    user = models.ForeignKey(UserProfile, related_name='orders')
+    user = models.ForeignKey(UserProfile, related_name='orders', on_delete=models.CASCADE)
     order_number = models.CharField(max_length=20, unique=True)
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='pending')
     billing_address = models.ForeignKey(
@@ -85,7 +85,7 @@ class Order(models.Model):
         Address, related_name='shipping_orders', null=True, on_delete=models.SET_NULL
     )
     shipping_rate = models.ForeignKey(ShippingRate, null=True, blank=True, on_delete=models.SET_NULL)
-    discount = models.ForeignKey(Discount, null=True, blank=True, related_name='orders')
+    discount = models.ForeignKey(Discount, null=True, blank=True, related_name='orders', on_delete=models.CASCADE)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     shipping_cost = models.DecimalField(max_digits=8, decimal_places=2, default=0)
@@ -102,15 +102,15 @@ class Order(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return force_text(u'Order #%s by %s' % (self.order_number, self.user.email))
+        return force_str(u'Order #%s by %s' % (self.order_number, self.user.email))
 
 
 @python_2_unicode_compatible
 class OrderItem(models.Model):
     """A line item in an order (snapshot of product at time of purchase)."""
-    order = models.ForeignKey(Order, related_name='items')
-    product = models.ForeignKey(Product, related_name='order_items')
-    variant = models.ForeignKey(ProductVariant, null=True, blank=True, related_name='order_items')
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='order_items', on_delete=models.CASCADE)
+    variant = models.ForeignKey(ProductVariant, null=True, blank=True, related_name='order_items', on_delete=models.CASCADE)
     product_name = models.CharField(max_length=200)  # Snapshot at time of order
     product_sku = models.CharField(max_length=50)
     quantity = models.PositiveIntegerField()
