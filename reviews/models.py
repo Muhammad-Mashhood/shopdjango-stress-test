@@ -4,7 +4,7 @@ Depends on: accounts.models, products.models, orders.models
 """
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from six import python_2_unicode_compatible
 
 from accounts.models import UserProfile
@@ -14,8 +14,8 @@ from products.models import Product
 @python_2_unicode_compatible
 class Review(models.Model):
     """A product review submitted by a customer."""
-    product = models.ForeignKey(Product, related_name='reviews')
-    user = models.ForeignKey(UserProfile, related_name='reviews')
+    product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, related_name='reviews', on_delete=models.CASCADE)
     order_id = models.IntegerField(null=True, blank=True)  # Avoids circular import
     rating = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)]
@@ -40,8 +40,8 @@ class Review(models.Model):
 @python_2_unicode_compatible
 class ReviewVote(models.Model):
     """Tracks whether a user found a review helpful."""
-    review = models.ForeignKey(Review, related_name='votes')
-    user = models.ForeignKey(UserProfile, related_name='review_votes')
+    review = models.ForeignKey(Review, related_name='votes', on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, related_name='review_votes', on_delete=models.CASCADE)
     is_helpful = models.BooleanField()
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -55,8 +55,8 @@ class ReviewVote(models.Model):
 @python_2_unicode_compatible
 class Question(models.Model):
     """Customer Q&A for a product."""
-    product = models.ForeignKey(Product, related_name='questions')
-    user = models.ForeignKey(UserProfile, related_name='questions')
+    product = models.ForeignKey(Product, related_name='questions', on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, related_name='questions', on_delete=models.CASCADE)
     question = models.TextField()
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -68,8 +68,8 @@ class Question(models.Model):
 @python_2_unicode_compatible
 class Answer(models.Model):
     """Answer to a product question."""
-    question = models.ForeignKey(Question, related_name='answers')
-    user = models.ForeignKey(UserProfile, related_name='answers')
+    question = models.ForeignKey(Question, related_name='answers', on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, related_name='answers', on_delete=models.CASCADE)
     answer = models.TextField()
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
