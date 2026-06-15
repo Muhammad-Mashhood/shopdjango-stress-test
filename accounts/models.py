@@ -1,18 +1,15 @@
 """
 accounts/models.py - Custom User model and related models
-Django 1.x style
+Django 5.x style
 """
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_text
+from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-from six import python_2_unicode_compatible
 
 from accounts.managers import UserProfileManager
 
 
-@python_2_unicode_compatible
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     """
     Custom user model for ShopDjango.
@@ -43,16 +40,15 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         ordering = ['-date_joined']
 
     def __str__(self):
-        return force_text(self.email)
+        return self.email
 
     def get_full_name(self):
-        return u'%s %s' % (self.first_name, self.last_name)
+        return f'{self.first_name} {self.last_name}'
 
     def get_short_name(self):
         return self.first_name
 
 
-@python_2_unicode_compatible
 class Address(models.Model):
     """Reusable address model linked to users"""
     ADDRESS_TYPE_CHOICES = (
@@ -80,10 +76,9 @@ class Address(models.Model):
         verbose_name_plural = _('addresses')
 
     def __str__(self):
-        return u'%s - %s, %s' % (self.user.email, self.city, self.country)
+        return f'{self.user.email} - {self.city}, {self.country}'
 
 
-@python_2_unicode_compatible
 class UserActivity(models.Model):
     """Tracks user login/logout and page view activity"""
     user = models.ForeignKey(
@@ -102,13 +97,12 @@ class UserActivity(models.Model):
         ordering = ['-timestamp']
 
     def __str__(self):
-        return u'%s - %s' % (self.user.email, self.action)
+        return f'{self.user.email} - {self.action}'
 
 
-@python_2_unicode_compatible
 class Wishlist(models.Model):
     """User wishlist - references products via string to avoid circular import"""
-    user = models.OneToOneField(UserProfile, related_name='wishlist')
+    user = models.OneToOneField(UserProfile, related_name='wishlist', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -116,4 +110,4 @@ class Wishlist(models.Model):
         verbose_name = _('wishlist')
 
     def __str__(self):
-        return u'Wishlist of %s' % self.user.email
+        return f'Wishlist of {self.user.email}'
