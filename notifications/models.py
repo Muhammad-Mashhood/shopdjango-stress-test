@@ -3,13 +3,12 @@ notifications/models.py - Notification records for users
 Depends on: accounts.models
 """
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
-from six import python_2_unicode_compatible
+from django.utils.translation import gettext_lazy as _
+from django.db.models import UniqueConstraint, Index
 
 from accounts.models import UserProfile
 
 
-@python_2_unicode_compatible
 class Notification(models.Model):
     """An in-app notification for a user."""
     NOTIFICATION_TYPES = (
@@ -26,7 +25,7 @@ class Notification(models.Model):
         ('new_message', _('New Message')),
         ('account_verified', _('Account Verified')),
     )
-    user = models.ForeignKey(UserProfile, related_name='notifications')
+    user = models.ForeignKey(UserProfile, related_name='notifications', on_delete=models.CASCADE)
     notification_type = models.CharField(max_length=30, choices=NOTIFICATION_TYPES)
     title = models.CharField(max_length=200)
     message = models.TextField()
@@ -39,12 +38,14 @@ class Notification(models.Model):
     class Meta:
         verbose_name = _('notification')
         ordering = ['-created_at']
+        constraints = [
+            UniqueConstraint(fields=['user', 'notification_type', 'title'], name='unique_notification')
+        ]
 
     def __str__(self):
-        return u'%s to %s: %s' % (self.notification_type, self.user.email, self.title)
+        return f'{self.notification_type} to {self.user.email}: {self.title}'
 
 
-@python_2_unicode_compatible
 class EmailLog(models.Model):
     """Log of all outbound emails sent to users."""
     STATUS_CHOICES = (
@@ -53,7 +54,7 @@ class EmailLog(models.Model):
         ('failed', _('Failed')),
         ('bounced', _('Bounced')),
     )
-    user = models.ForeignKey(UserProfile, related_name='email_logs', null=True, blank=True)
+    user = models.ForeignKey(UserProfile, related_name='email_logs', null=True, blank=True, on_delete=models.SET_NULL)
     recipient_email = models.EmailField()
     subject = models.CharField(max_length=200)
     body = models.TextField()
@@ -65,6 +66,9 @@ class EmailLog(models.Model):
     class Meta:
         verbose_name = _('email log')
         ordering = ['-created_at']
+        indexes = [
+            Index(fields=['created_at'])
+        ]
 
     def __str__(self):
-        return u'Email to %s: %s (%s)' % (self.recipient_email, self.subject, self.status)
+        return f'Email to {self.recipient_email}: {self.subject} ({self.status})'
