@@ -4,18 +4,17 @@ Depends on: accounts.models, products.models, orders.models
 """
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.utils.translation import ugettext_lazy as _
-from six import python_2_unicode_compatible
+from django.utils.translation import gettext_lazy as _
+from django.db.models import UniqueConstraint, Index
 
 from accounts.models import UserProfile
 from products.models import Product
 
 
-@python_2_unicode_compatible
 class Review(models.Model):
     """A product review submitted by a customer."""
-    product = models.ForeignKey(Product, related_name='reviews')
-    user = models.ForeignKey(UserProfile, related_name='reviews')
+    product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, related_name='reviews', on_delete=models.CASCADE)
     order_id = models.IntegerField(null=True, blank=True)  # Avoids circular import
     rating = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)]
@@ -30,49 +29,53 @@ class Review(models.Model):
 
     class Meta:
         verbose_name = _('review')
-        unique_together = ('product', 'user')
+        constraints = [
+            UniqueConstraint(fields=['product', 'user'], name='unique_review')
+        ]
+        indexes = [
+            Index(fields=['-created_at'])
+        ]
         ordering = ['-created_at']
 
     def __str__(self):
-        return u'%s rated %s: %d/5' % (self.user.email, self.product.name, self.rating)
+        return f'{self.user.email} rated {self.product.name}: {self.rating}/5'
 
 
-@python_2_unicode_compatible
 class ReviewVote(models.Model):
     """Tracks whether a user found a review helpful."""
-    review = models.ForeignKey(Review, related_name='votes')
-    user = models.ForeignKey(UserProfile, related_name='review_votes')
+    review = models.ForeignKey(Review, related_name='votes', on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, related_name='review_votes', on_delete=models.CASCADE)
     is_helpful = models.BooleanField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('review', 'user')
+        constraints = [
+            UniqueConstraint(fields=['review', 'user'], name='unique_review_vote')
+        ]
 
     def __str__(self):
-        return u'%s voted on review #%s' % (self.user.email, self.review.pk)
+        return f'{self.user.email} voted on review #{self.review.pk}'
 
 
-@python_2_unicode_compatible
 class Question(models.Model):
     """Customer Q&A for a product."""
-    product = models.ForeignKey(Product, related_name='questions')
-    user = models.ForeignKey(UserProfile, related_name='questions')
+    product = models.ForeignKey(Product, related_name='questions', on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, related_name='questions', on_delete=models.CASCADE)
     question = models.TextField()
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return u'Q: %s on %s' % (self.question[:50], self.product.name)
+        return f'Q: {self.question[:50]} on {self.product.name}'
 
 
-@python_2_unicode_compatible
 class Answer(models.Model):
     """Answer to a product question."""
-    question = models.ForeignKey(Question, related_name='answers')
-    user = models.ForeignKey(UserProfile, related_name='answers')
+    question = models.ForeignKey(Question, related_name='answers', on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, related_name='answers', on_delete=models.CASCADE)
     answer = models.TextField()
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return u'A: %s' % self.answer[:50]
+        return f'A: {self.answer[:50]}'
